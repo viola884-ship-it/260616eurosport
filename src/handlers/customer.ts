@@ -47,18 +47,17 @@ export function registerCustomerHandlers(bot: Bot<BotContext>, env: Env) {
 
     await ctx.reply(summary);
 
-    // Notify manager
+    // Notify manager — no URLs in notification text to prevent feedback loops
     const managerId = Number(env.MANAGER_CHAT_ID);
     if (managerId) {
       const prefix = isDuplicate ? '\u{26A0}\uFE0F ' : '\uD83C\uDD95 ';
       const username = ctx.from?.username
         ? `@${ctx.from.username}`
         : `${ctx.from?.first_name ?? 'Unknown'}`;
-      const items = links.map((l, i) => `  ${i + 1}. ${l}`).join('\n');
 
       await ctx.api.sendMessage(
         managerId,
-        `${prefix}New Order #${order.display_id}\nFrom: ${username}\nItems:\n${items}\nSpecs: ${specs ?? '(none)'}\nTime: ${order.created_at}`,
+        `${prefix}New Order #${order.display_id}\nFrom: ${username}\nItems: ${links.length} link(s)\nSpecs: ${specs ?? '(none)'}\nTime: ${order.created_at}\n\nManage: /customer ${order.display_id}`,
       );
     }
   });

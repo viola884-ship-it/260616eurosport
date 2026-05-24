@@ -5,13 +5,13 @@ import { OrderQueries } from '../db/queries';
 export function registerManagerHandlers(bot: Bot<BotContext>, env: Env) {
   const queries = new OrderQueries(env.DB);
 
-  bot.command('status', async (ctx) => {
+  bot.command('update', async (ctx) => {
     const chatId = ctx.chat!.id;
     if (chatId !== Number(env.MANAGER_CHAT_ID)) return;
 
     const args = ctx.match?.trim().split(/\s+/);
     if (!args || args.length < 2) {
-      await ctx.reply('Usage: /status <order-id> <new-status>');
+      await ctx.reply('Usage: /update <order-id> <new-status>');
       return;
     }
 
@@ -83,13 +83,12 @@ export function registerManagerHandlers(bot: Bot<BotContext>, env: Env) {
     const lines: string[] = [];
     for (const order of orders) {
       const items = await queries.getOrderItems(order.id);
-      const firstItem = items[0];
-      const linkSummary = firstItem
-        ? ` ${firstItem.link.substring(0, 40)}${items.length > 1 ? ` (+${items.length - 1} more)` : ''}`
-        : '';
-      lines.push(` #${order.display_id} ${order.status} —${linkSummary}`);
+      lines.push(` #${order.display_id} ${order.status} — ${items.length} item(s)`);
     }
     await ctx.reply(`Orders:\n${lines.join('\n')}`);
+    if (orders.length > 0) {
+      await ctx.reply('Use /customer <order-id> to view details.');
+    }
   });
 
   bot.command('customer', async (ctx) => {

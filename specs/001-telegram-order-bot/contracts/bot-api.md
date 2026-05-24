@@ -37,8 +37,8 @@ Bot replies: "Send me a product link to create an order. Use /status to check yo
 ### Update Order Status
 
 ```
-Manager sends: /status <order-id> <new-status>
-Example: /status 005 confirmed
+Manager sends: /update <order-id> <new-status>
+Example: /update 005 confirmed
 
 Valid statuses: new, confirmed, processing, shipped, completed, cancelled
 
@@ -54,8 +54,9 @@ Manager sends: /list processing
 
 Bot replies:
 "Orders:
- #003 processing — https://example.com/... (qty:2, color:blue)
- #005 new — https://example.com/..."
+ #003 processing — 1 item(s)
+ #005 new — 2 item(s)
+Use /customer <order-id> to view details."
 ```
 
 ### List Customer Orders
@@ -78,9 +79,10 @@ Status: new"
 Bot sends to manager chat:
 "🆕 New Order #005
 From: @customer_username
-Items: https://example.com/a, https://example.com/b
+Items: 2 link(s)
 Specs: quantity:1 each
-Time: 2026-05-24 14:30:00"
+Time: 2026-05-24 14:30:00
+Manage: /customer 005"
 ```
 
 ### Duplicate Flag
@@ -89,8 +91,9 @@ Time: 2026-05-24 14:30:00"
 Bot sends to manager chat:
 "🆕 New Order #006 ⚠️ Possible duplicate of #005
 From: @customer_username
-Items: https://example.com/a
-Specs: quantity:1"
+Items: 1 link(s)
+Specs: quantity:1
+Manage: /customer 006"
 ```
 
 ## Bot → Customer (Notifications)
