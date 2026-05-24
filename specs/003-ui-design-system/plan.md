@@ -1,6 +1,6 @@
 # Implementation Plan: shadcn-ui Design System
 
-**Branch**: `002-orders-dashboard` | **Date**: 2026-05-24 | **Spec**: [spec.md](./spec.md)
+**Branch**: `003-ui-design-system` | **Date**: 2026-05-24 | **Spec**: [spec.md](./spec.md)
 **Input**: Feature specification from `/specs/003-ui-design-system/spec.md`
 
 ## Summary

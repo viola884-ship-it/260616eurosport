@@ -82,7 +82,7 @@ description: "Task list for shadcn-ui Design System feature implementation"
 
 **Independent Test**: Access telegram-notify worker's web pages and verify shadcn/ui styling is applied
 
-- [ ] T022 [P] [US2] Identify all web pages served by `workers/telegram-notify/`
+- [ ] T022 [P] [US2] Inspect `workers/telegram-notify/` directory and source files for any HTML render methods (Response with HTML, HtmlTemplate, etc.); document findings in `specs/003-ui-design-system/contracts/telegram-pages.md`
 - [ ] T023 [P] [US2] Migrate status pages to shadcn/ui Card and Badge components (or document if no web pages exist)
 - [ ] T024 [US2] Apply consistent dark mode support across telegram-notify web pages
 

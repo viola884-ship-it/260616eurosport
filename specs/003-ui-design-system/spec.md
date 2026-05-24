@@ -63,12 +63,12 @@ All future web interface development in this project must use the standard compo
 
 ### Functional Requirements
 
-- **FR-001**: All web interfaces in this project MUST use the standard component library for UI elements
-- **FR-002**: The component library MUST be sourced from an official, community-maintained library with accessible, reusable components
+- **FR-001**: All web interfaces in this project MUST use shadcn/ui for UI elements
+- **FR-002**: shadcn/ui components MUST be sourced from the official shadcn/ui CLI (`npx shadcn@latest add`) with accessible, reusable components built on Radix UI primitives
 - **FR-003**: The dashboard MUST use component library components for: Table, Dialog, Input, Select, Button, Badge, Card, Label, Avatar
 - **FR-004**: The design system MUST support both light and dark themes
 - **FR-005**: All component library components MUST maintain accessibility compliance (ARIA attributes, keyboard navigation, focus management)
-- **FR-006**: Custom styling that extends components MUST be done via the library's recommended CSS customization approach, not by modifying component source files
+- **FR-006**: Custom styling that extends shadcn/ui components MUST be done via Tailwind CSS classes (using `className` prop) and CSS variables in `app.css` — NOT by modifying component source files in `components/ui/`
 
 ### Key Entities *(include if feature involves data)*
 
