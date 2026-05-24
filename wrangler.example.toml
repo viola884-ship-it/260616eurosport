@@ -1,0 +1,16 @@
+name = "telegram-order-bot"
+main = "src/index.ts"
+compatibility_date = "2026-05-24"
+
+# D1 Database
+[[d1_databases]]
+binding = "DB"
+database_name = "orders-db"
+database_id = "<create via: wrangler d1 create orders-db>"
+
+# Environment variables (set MANAGER_CHAT_ID before deploying)
+[vars]
+MANAGER_CHAT_ID = "<your-telegram-chat-id>"
+
+# Secrets (set via wrangler secret put BOT_TOKEN)
+# BOT_TOKEN = "<telegram-bot-token>"

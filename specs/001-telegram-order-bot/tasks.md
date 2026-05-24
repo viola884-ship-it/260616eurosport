@@ -24,10 +24,10 @@ description: "Task list for Telegram Order Bot feature implementation"
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Initialize npm project and install dependencies (TypeScript, grammY, vitest, wrangler)
-- [ ] T002 [P] Create tsconfig.json with strict TypeScript config
-- [ ] T003 [P] Create wrangler.toml with D1 binding and environment variable placeholders
-- [ ] T004 Create D1 database schema in src/db/schema.sql (customers, orders, order_items, status_transitions tables)
+- [x] T001 Initialize npm project and install dependencies (TypeScript, grammY, vitest, wrangler)
+- [x] T002 [P] Create tsconfig.json with strict TypeScript config
+- [x] T003 [P] Create wrangler.toml with D1 binding and environment variable placeholders
+- [x] T004 Create D1 database schema in src/db/schema.sql (customers, orders, order_items, status_transitions tables)
 
 ---
 
@@ -37,10 +37,10 @@ description: "Task list for Telegram Order Bot feature implementation"
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T005 [P] Create shared TypeScript types in src/types.ts (Customer, Order, OrderItem, StatusTransition, BotContext)
-- [ ] T006 [P] Create bot setup and webhook handler in src/bot.ts (grammY bot with Cloudflare Workers adapter)
-- [ ] T007 Create Worker entry point in src/index.ts (webhook handler, error handling, startup)
-- [ ] T008 Create database query functions in src/db/queries.ts (customer CRUD, order CRUD, status transitions)
+- [x] T005 [P] Create shared TypeScript types in src/types.ts (Customer, Order, OrderItem, StatusTransition, BotContext)
+- [x] T006 [P] Create bot setup and webhook handler in src/bot.ts (grammY bot with Cloudflare Workers adapter)
+- [x] T007 Create Worker entry point in src/index.ts (webhook handler, error handling, startup)
+- [x] T008 Create database query functions in src/db/queries.ts (customer CRUD, order CRUD, status transitions)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -52,10 +52,10 @@ description: "Task list for Telegram Order Bot feature implementation"
 
 **Independent Test**: Send a product link with specs to the bot and verify the bot confirms with an order summary
 
-- [ ] T009 [P] [US1] Create customer message handler in src/handlers/customer.ts (link extraction, spec parsing middleware)
-- [ ] T010 [US1] Implement order creation flow in src/handlers/customer.ts (lookup-or-create customer, insert order + line items, assign display_id)
-- [ ] T011 [US1] Implement duplicate detection and flagging in order creation (check same customer + same links in recent window)
-- [ ] T012 [US1] Implement order confirmation reply to customer (order summary with display_id)
+- [x] T009 [P] [US1] Create customer message handler in src/handlers/customer.ts (link extraction, spec parsing middleware)
+- [x] T010 [US1] Implement order creation flow in src/handlers/customer.ts (lookup-or-create customer, insert order + line items, assign display_id)
+- [x] T011 [US1] Implement duplicate detection and flagging in order creation (check same customer + same links in recent window)
+- [x] T012 [US1] Implement order confirmation reply to customer (order summary with display_id)
 
 **Checkpoint**: At this point, a customer can place an order via the bot and receive a confirmation
 
@@ -67,10 +67,10 @@ description: "Task list for Telegram Order Bot feature implementation"
 
 **Independent Test**: Place an order as a customer and verify a notification appears in the manager's chat
 
-- [ ] T013 [P] [US2] Create manager handler in src/handlers/manager.ts (/list, /customer commands)
-- [ ] T014 [US2] Send new order notification to manager chat from order creation flow (format per contracts/bot-api.md)
-- [ ] T015 [US2] Implement /list command for manager in src/handlers/manager.ts (list all orders, optional status filter)
-- [ ] T016 [US2] Implement /customer command for manager in src/handlers/manager.ts (view order by display_id)
+- [x] T013 [P] [US2] Create manager handler in src/handlers/manager.ts (/list, /customer commands)
+- [x] T014 [US2] Send new order notification to manager chat from order creation flow (format per contracts/bot-api.md)
+- [x] T015 [US2] Implement /list command for manager in src/handlers/manager.ts (list all orders, optional status filter)
+- [x] T016 [US2] Implement /customer command for manager in src/handlers/manager.ts (view order by display_id)
 
 **Checkpoint**: At this point, the full order flow works end-to-end: customer places → manager receives → manager reviews
 
@@ -82,9 +82,9 @@ description: "Task list for Telegram Order Bot feature implementation"
 
 **Independent Test**: Update an order's status via the manager chat and verify the customer receives a notification
 
-- [ ] T017 [US3] Implement /status command for manager in src/handlers/manager.ts (parse <order-id> <new-status>, validate transition)
-- [ ] T018 [US3] Implement status transition logic with validation in src/db/queries.ts (record transition, enforce lifecycle rules)
-- [ ] T019 [US3] Implement customer notification on status change (send message to customer's Telegram chat)
+- [x] T017 [US3] Implement /status command for manager in src/handlers/manager.ts (parse <order-id> <new-status>, validate transition)
+- [x] T018 [US3] Implement status transition logic with validation in src/db/queries.ts (record transition, enforce lifecycle rules)
+- [x] T019 [US3] Implement customer notification on status change (send message to customer's Telegram chat)
 
 **Checkpoint**: At this point, the manager can manage the full order lifecycle and customers are notified
 
@@ -96,8 +96,8 @@ description: "Task list for Telegram Order Bot feature implementation"
 
 **Independent Test**: Ask the bot for order status and verify the correct list of orders with statuses is returned
 
-- [ ] T020 [P] [US4] Implement /status command for customers in src/handlers/customer.ts (lookup orders by customer)
-- [ ] T021 [US4] Add customer order lookup query in src/db/queries.ts (get orders by customer_id with current status)
+- [x] T020 [P] [US4] Implement /status command for customers in src/handlers/customer.ts (lookup orders by customer)
+- [x] T021 [US4] Add customer order lookup query in src/db/queries.ts (get orders by customer_id with current status)
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -107,10 +107,10 @@ description: "Task list for Telegram Order Bot feature implementation"
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T022 [P] Create wrangler.example.toml with documented env vars for team reference
-- [ ] T023 Add .gitignore (node_modules, .wrangler, wrangler.toml with secrets, dist/)
-- [ ] T024 End-to-end validation: deploy to Cloudflare Workers, set webhook, verify full flow
-- [ ] T025 [P] Add inline documentation to all source files (JSDoc on exports)
+- [x] T022 [P] Create wrangler.example.toml with documented env vars for team reference
+- [x] T023 Add .gitignore (node_modules, .wrangler, wrangler.toml with secrets, dist/)
+- [x] T024 End-to-end validation: deploy to Cloudflare Workers, set webhook, verify full flow
+- [x] T025 [P] Add inline documentation to all source files (JSDoc on exports)
 
 ---
 
