@@ -17,8 +17,8 @@ export default {
           return prev(method, { ...payload, parse_mode: 'HTML' });
         });
 
-        registerCustomerHandlers(bot, env);
         registerManagerHandlers(bot, env);
+        registerCustomerHandlers(bot, env);
 
         try {
           await bot.handleUpdate(update);
@@ -30,11 +30,8 @@ export default {
       }
 
       return new Response('Telegram Order Bot', { status: 200 });
-    } catch (err) {
-      return new Response(
-        `Error: ${err instanceof Error ? err.message : String(err)}`,
-        { status: 500 },
-      );
+    } catch {
+      return new Response('OK', { status: 200 });
     }
   },
 };
