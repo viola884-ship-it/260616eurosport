@@ -92,7 +92,9 @@ export function DashboardApp() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
-  const [darkMode, setDarkMode] = useState(false);
+  const [darkMode, setDarkMode] = useState(() => {
+    return localStorage.getItem('theme') === 'dark';
+  });
   const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const isInitialized = useRef(false);
 
@@ -107,6 +109,7 @@ export function DashboardApp() {
   }, []);
 
   useEffect(() => {
+    localStorage.setItem('theme', darkMode ? 'dark' : 'light');
     document.documentElement.classList.toggle('dark', darkMode);
   }, [darkMode]);
 
