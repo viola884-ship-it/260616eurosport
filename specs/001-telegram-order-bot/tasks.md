@@ -50,8 +50,8 @@ description: "Task list for Telegram Order Bot feature implementation"
 
 **Purpose**: Unit tests validating core logic per constitution Quality Gates
 
-- [ ] T026 [P] Add database query unit tests in tests/db/queries.test.ts (vitest)
-- [ ] T027 [P] Add handler helper unit tests in tests/handlers/helpers.test.ts (vitest)
+- [x] T026 [P] Add database query unit tests in tests/db/queries.test.ts (vitest)
+- [x] T027 [P] Add handler helper unit tests in tests/handlers/helpers.test.ts (vitest)
 
 ---
 
