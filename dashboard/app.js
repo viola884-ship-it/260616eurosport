@@ -1,12 +1,56 @@
 /**
  * Dashboard App Logic
- * Fetches and displays orders, handles sorting, filtering, and order detail modal
+ * Handles authentication, order loading, sorting, filtering, and order detail modal
  */
-
-import { api } from './api.js';
 
 const DEBOUNCE_MS = 300;
 const PAGE_SIZE = 50;
+
+const api = {
+  async login(password) {
+    const response = await fetch('/dashboard-api/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ password }),
+    });
+    if (!response.ok) throw new Error('Invalid credentials');
+
+    const data = await response.json().catch(() => ({}));
+    const sessionToken = response.headers.get('X-Session-Token') || data.token;
+    if (sessionToken) {
+      localStorage.setItem('session_token', sessionToken);
+    }
+    return response;
+  },
+
+  async logout() {
+    await fetch('/dashboard-api/logout', { method: 'POST' });
+  },
+
+  getHeaders() {
+    const token = localStorage.getItem('session_token');
+    return token ? { 'X-Session-Token': token } : {};
+  },
+
+  async getOrders({ status, limit = 50, offset = 0 } = {}) {
+    const params = new URLSearchParams();
+    if (status) params.set('status', status);
+    params.set('limit', limit.toString());
+    params.set('offset', offset.toString());
+
+    const headers = this.getHeaders();
+    const response = await fetch(`/dashboard-api/orders?${params}`, { headers });
+    if (!response.ok) throw new Error('Unauthorized');
+    return response.json();
+  },
+
+  async getOrder(displayId) {
+    const headers = this.getHeaders();
+    const response = await fetch(`/dashboard-api/orders/${encodeURIComponent(displayId)}`, { headers });
+    if (!response.ok) throw new Error('Unauthorized');
+    return response.json();
+  },
+};
 
 class DashboardApp {
   constructor() {
@@ -18,10 +62,16 @@ class DashboardApp {
 
     this.initElements();
     this.bindEvents();
-    this.loadOrders();
+    this.checkAuth();
   }
 
   initElements() {
+    this.loginScreen = document.getElementById('login-screen');
+    this.dashboardScreen = document.getElementById('dashboard-screen');
+    this.loginForm = document.getElementById('login-form');
+    this.loginError = document.getElementById('login-error');
+    this.passwordInput = document.getElementById('password-input');
+
     this.tableBody = document.getElementById('orders-tbody');
     this.statusFilter = document.getElementById('status-filter');
     this.customerSearch = document.getElementById('customer-search');
@@ -35,6 +85,11 @@ class DashboardApp {
   }
 
   bindEvents() {
+    this.loginForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      this.handleLogin();
+    });
+
     this.statusFilter.addEventListener('change', () => this.onStatusFilterChange());
     this.customerSearch.addEventListener('input', (e) => this.onSearchInput(e));
     this.prevBtn.addEventListener('click', () => this.prevPage());
@@ -50,6 +105,50 @@ class DashboardApp {
     });
   }
 
+  checkAuth() {
+    const token = localStorage.getItem('session_token');
+    if (token) {
+      this.showDashboard();
+      this.loadOrders();
+    } else {
+      this.showLogin();
+    }
+  }
+
+  showLogin() {
+    this.loginScreen.hidden = false;
+    this.dashboardScreen.hidden = true;
+  }
+
+  showDashboard() {
+    this.loginScreen.hidden = true;
+    this.dashboardScreen.hidden = false;
+  }
+
+  async handleLogin() {
+    const password = this.passwordInput.value;
+    this.loginError.hidden = true;
+
+    try {
+      await api.login(password);
+      this.passwordInput.value = '';
+      this.showDashboard();
+      this.loadOrders();
+    } catch {
+      this.loginError.hidden = false;
+    }
+  }
+
+  async logout() {
+    try {
+      await api.logout();
+    } finally {
+      localStorage.removeItem('session_token');
+      this.orders = [];
+      this.showLogin();
+    }
+  }
+
   async loadOrders() {
     this.showLoading();
     try {
@@ -62,7 +161,11 @@ class DashboardApp {
       this.pagination.total = response.total;
       this.renderTable();
     } catch (error) {
-      this.showError('Failed to load orders: ' + error.message);
+      if (error.message === 'Unauthorized') {
+        this.logout();
+      } else {
+        this.showError('Failed to load orders: ' + error.message);
+      }
     }
   }
 
@@ -195,7 +298,11 @@ class DashboardApp {
       const response = await api.getOrder(displayId);
       this.showOrderDetail(response.order);
     } catch (error) {
-      alert('Failed to load order details: ' + error.message);
+      if (error.message === 'Unauthorized') {
+        this.logout();
+      } else {
+        alert('Failed to load order details: ' + error.message);
+      }
     }
   }
 
@@ -213,7 +320,7 @@ class DashboardApp {
 
     const itemsHtml = order.items
       .map(
-        (item, i) => `
+        (item) => `
       <li>
         <a href="${item.link}" target="_blank" rel="noopener">${item.link}</a>
       </li>
@@ -264,15 +371,6 @@ class DashboardApp {
 
   closeModal() {
     this.modal.hidden = true;
-  }
-
-  async logout() {
-    try {
-      await fetch('/dashboard-api/logout', { method: 'POST' });
-      window.location.reload();
-    } catch {
-      window.location.reload();
-    }
   }
 
   formatRelativeTime(isoString) {

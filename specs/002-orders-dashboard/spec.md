@@ -2,7 +2,7 @@
 
 **Feature Branch**: `002-orders-dashboard`
 **Created**: 2026-05-24
-**Status**: Draft
+**Status**: Implemented
 **Input**: User description: "create simple dashboard of all orders"
 
 ## User Scenarios & Testing *(mandatory)*

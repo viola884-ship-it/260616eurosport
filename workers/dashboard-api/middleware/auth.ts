@@ -20,6 +20,20 @@ export async function authMiddleware(
     return { authorized: true };
   }
 
+  const sessionToken = request.headers.get('X-Session-Token');
+  if (sessionToken) {
+    try {
+      const sessionData = JSON.parse(atob(sessionToken)) as SessionData;
+      const now = Date.now();
+      const thirtyMinutes = 30 * 60 * 1000;
+      if (now - sessionData.timestamp <= thirtyMinutes) {
+        return { authorized: true };
+      }
+    } catch {
+      // Fall through to cookie check
+    }
+  }
+
   const sessionCookie = request.headers.get('Cookie');
   if (!sessionCookie) {
     return { authorized: false };
@@ -49,7 +63,7 @@ export async function authMiddleware(
 
 export function createSessionCookie(sessionData: SessionData): string {
   const encoded = base64Encode(JSON.stringify(sessionData));
-  return `${SESSION_COOKIE}=${encoded}; HttpOnly; Path=/; Max-Age=${30 * 60}`;
+  return `${SESSION_COOKIE}=${encoded}; HttpOnly; Path=/; Max-Age=${30 * 60}; SameSite=Lax`;
 }
 
 export function clearSessionCookie(): string {

@@ -4,7 +4,7 @@
  */
 
 import type { Env, ActivityLogEntry } from '../types';
-import { createLogEntry, writeActivityLog } from '../../kv/schema';
+import { createLogEntry, writeActivityLog } from '../lib/kv-schema';
 
 export async function loggingMiddleware(
   request: Request,

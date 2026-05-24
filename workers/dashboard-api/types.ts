@@ -5,6 +5,7 @@
 export interface Env {
   DB: D1Database;
   ACTIVITY_LOGS: KVNamespace;
+  ASSETS: { fetch: (request: Request) => Promise<Response> };
 }
 
 export interface OrderSummary {

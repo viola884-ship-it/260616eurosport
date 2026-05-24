@@ -3,7 +3,7 @@
  * Router, CORS, error handling
  */
 
-import type { Env, OrderSummary, OrderDetail, OrderListResponse } from './types';
+import type { Env, OrderSummary, OrderDetail } from './types';
 import { authMiddleware, createSessionCookie, clearSessionCookie, validateCredentials } from './middleware/auth';
 import { loggingMiddleware } from './middleware/logging';
 import { rateLimit, getClientIdentifier, rateLimitHeaders } from './middleware/rate-limit';
@@ -12,15 +12,23 @@ const HEADERS = {
   'Content-Type': 'application/json',
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Methods': 'GET, POST, PATCH, DELETE, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+  'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Session-Token',
+  'Access-Control-Allow-Credentials': 'true',
+  'Access-Control-Expose-Headers': 'X-Session-Token',
 };
 
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
     const url = new URL(request.url);
+    const origin = request.headers.get('Origin');
+
+    const CORS_HEADERS = {
+      ...HEADERS,
+      'Access-Control-Allow-Origin': origin || '*',
+    };
 
     if (request.method === 'OPTIONS') {
-      return new Response(null, { status: 204, headers: HEADERS });
+      return new Response(null, { status: 204, headers: CORS_HEADERS });
     }
 
     const rateResult = rateLimit(getClientIdentifier(request));
@@ -33,18 +41,42 @@ export default {
       const { password } = body as { password?: string };
 
       if (!password || !(await validateCredentials(env, password))) {
-        return jsonResponse({ error: 'Invalid credentials' }, 401, HEADERS);
+        return jsonResponse({ error: 'Invalid credentials' }, 401, CORS_HEADERS);
       }
 
-      const sessionCookie = createSessionCookie({ authenticated: true, timestamp: Date.now() });
-      const response = jsonResponse({ success: true }, 200, { ...HEADERS, 'Set-Cookie': sessionCookie });
-      return response;
+      const sessionData = { authenticated: true, timestamp: Date.now() };
+      const sessionCookie = createSessionCookie(sessionData);
+      const token = btoa(JSON.stringify(sessionData));
+      const responseHeaders = new Headers(CORS_HEADERS);
+      responseHeaders.set('Set-Cookie', sessionCookie);
+      responseHeaders.set('X-Session-Token', token);
+      return new Response(JSON.stringify({ success: true, token }), { status: 200, headers: responseHeaders });
     }
 
     if (url.pathname === '/dashboard-api/logout' && request.method === 'POST') {
       const clearCookie = clearSessionCookie();
-      const response = jsonResponse({ success: true }, 200, { ...HEADERS, 'Set-Cookie': clearCookie });
-      return response;
+      return jsonResponse({ success: true }, 200, { ...HEADERS, 'Set-Cookie': clearCookie });
+    }
+
+    if (url.pathname === '/favicon.ico') {
+      try {
+        const svgRequest = new Request(url.origin + '/favicon.svg');
+        const asset = await env.ASSETS.fetch(svgRequest);
+        if (asset.status < 400) return asset;
+      } catch (e) {}
+      return new Response(null, { status: 204 });
+    }
+
+    if (url.pathname.startsWith('/dashboard/')) {
+      try {
+        const asset = await env.ASSETS.fetch(request);
+        if (asset.status < 400) {
+          return asset;
+        }
+      } catch (e) {
+        console.error('Asset fetch error:', e);
+      }
+      return jsonResponse({ error: 'Not found' }, 404, HEADERS);
     }
 
     const { authorized, response: authResponse } = await authMiddleware(request, env);
@@ -74,7 +106,7 @@ export default {
         return handleOrderMessage(displayId, request, env, HEADERS);
       }
 
-      if (path === '/customers/:id' && request.method === 'GET') {
+      if (path === '/customers' && request.method === 'GET') {
         const customerId = url.searchParams.get('id');
         if (!customerId) return jsonResponse({ error: 'Customer ID required' }, 400, HEADERS);
         return handleCustomerDetail(request, parseInt(customerId, 10), env, HEADERS);
@@ -93,21 +125,33 @@ export default {
 };
 
 async function handleOrdersList(request: Request, env: Env, url: URL, headers: Record<string, string>): Promise<Response> {
-  await loggingMiddleware(request, env, { action: 'view_order', targetType: 'api', targetId: 'list' });
+  try {
+    await loggingMiddleware(request, env, { action: 'view_order', targetType: 'api', targetId: 'list' });
+  } catch (e) {
+    console.error('Logging error:', e);
+  }
 
-  const status = url.searchParams.get('status') || undefined;
-  const limit = parseInt(url.searchParams.get('limit') || '50', 10);
-  const offset = parseInt(url.searchParams.get('offset') || '0', 10);
+  try {
+    const status = url.searchParams.get('status') || undefined;
+    const limit = parseInt(url.searchParams.get('limit') || '50', 10);
+    const offset = parseInt(url.searchParams.get('offset') || '0', 10);
 
-  const orders = await getOrders(env.DB, { status, limit, offset });
-  const total = await getOrdersCount(env.DB, { status });
+    const orders = await getOrders(env.DB, { status, limit, offset });
+    const total = await getOrdersCount(env.DB, { status });
 
-  const response = jsonResponse({ orders, total, limit, offset }, 200, { ...headers, ...rateLimitHeaders({ allowed: true, remaining: 99, resetAt: 0 }) });
-  return response;
+    return jsonResponse({ orders, total, limit, offset }, 200, { ...headers, ...rateLimitHeaders({ allowed: true, remaining: 99, resetAt: 0 }) });
+  } catch (err) {
+    console.error('getOrders error:', err);
+    return jsonResponse({ error: String(err) }, 500, headers);
+  }
 }
 
 async function handleOrderDetail(request: Request, displayId: string, env: Env, headers: Record<string, string>): Promise<Response> {
-  await loggingMiddleware(request, env, { action: 'view_order', targetType: 'order', targetId: displayId });
+  try {
+    await loggingMiddleware(request, env, { action: 'view_order', targetType: 'order', targetId: displayId });
+  } catch (e) {
+    console.error('Logging error:', e);
+  }
 
   const order = await getOrderByDisplayId(env.DB, displayId);
   if (!order) {
@@ -130,14 +174,18 @@ async function handleOrderStatus(displayId: string, request: Request, env: Env, 
     return jsonResponse({ error: 'Invalid status' }, 400, headers);
   }
 
-  await loggingMiddleware(request, env, { action: 'update_status', targetType: 'order', targetId: displayId, details: { status } });
+  try {
+    await loggingMiddleware(request, env, { action: 'update_status', targetType: 'order', targetId: displayId, details: { status } });
+  } catch (e) {
+    console.error('Logging error:', e);
+  }
 
   const updated = await updateOrderStatus(env.DB, displayId, status);
   if (!updated) {
     return jsonResponse({ error: 'Order not found' }, 404, headers);
   }
 
-  return jsonResponse({ success: true, order: updated, notification_sent: false }, 200, headers);
+  return jsonResponse({ success: true, notification_sent: false }, 200, headers);
 }
 
 async function handleOrderMessage(displayId: string, request: Request, env: Env, headers: Record<string, string>): Promise<Response> {
@@ -148,13 +196,21 @@ async function handleOrderMessage(displayId: string, request: Request, env: Env,
     return jsonResponse({ error: 'Message is required' }, 400, headers);
   }
 
-  await loggingMiddleware(request, env, { action: 'send_message', targetType: 'order', targetId: displayId });
+  try {
+    await loggingMiddleware(request, env, { action: 'send_message', targetType: 'order', targetId: displayId, details: { messageLength: message.length } });
+  } catch (e) {
+    console.error('Logging error:', e);
+  }
 
   return jsonResponse({ success: true, message_id: Date.now() }, 200, headers);
 }
 
 async function handleCustomerDetail(request: Request, customerId: number, env: Env, headers: Record<string, string>): Promise<Response> {
-  await loggingMiddleware(request, env, { action: 'api_call', targetType: 'customer', targetId: customerId.toString() });
+  try {
+    await loggingMiddleware(request, env, { action: 'api_call', targetType: 'customer', targetId: customerId.toString() });
+  } catch (e) {
+    console.error('Logging error:', e);
+  }
 
   const customer = await getCustomerById(env.DB, customerId);
   if (!customer) {
@@ -182,16 +238,18 @@ function jsonResponse(data: unknown, status: number, headers: Record<string, str
 }
 
 async function getOrders(db: D1Database, options: { status?: string; limit: number; offset: number }): Promise<OrderSummary[]> {
-  let query = 'SELECT display_id, customer_name, customer_username, status, item_count, created_at FROM orders';
-  const bindings: string[] = [];
+  let query = `SELECT o.display_id, c.first_name as customer_name, c.username as customer_username, o.status,
+    (SELECT COUNT(*) FROM order_items WHERE order_id = o.id) as item_count, o.created_at
+FROM orders o JOIN customers c ON o.customer_id = c.id`;
+  const bindings: (string | number)[] = [];
 
   if (options.status) {
-    query += ' WHERE status = ?';
+    query += ' WHERE o.status = ?';
     bindings.push(options.status);
   }
 
-  query += ' ORDER BY created_at DESC LIMIT ? OFFSET ?';
-  bindings.push(options.limit.toString(), options.offset.toString());
+  query += ' ORDER BY o.created_at DESC LIMIT ? OFFSET ?';
+  bindings.push(options.limit, options.offset);
 
   const result = await db.prepare(query).bind(...bindings).all();
   return result.results as OrderSummary[];
@@ -207,24 +265,25 @@ async function getOrdersCount(db: D1Database, options: { status?: string }): Pro
   }
 
   const result = await db.prepare(query).bind(...bindings).first<{ count: number }>();
-  return result?.count || 0;
+  return result?.count ?? 0;
 }
 
 async function getOrderByDisplayId(db: D1Database, displayId: string): Promise<OrderDetail | null> {
   const orderResult = await db.prepare(
-    'SELECT o.*, c.name as customer_name, c.username as customer_username, c.telegram_id FROM orders o JOIN customers c ON o.customer_id = c.id WHERE o.display_id = ?'
+    `SELECT o.*, c.first_name as customer_name, c.username as customer_username, c.telegram_id, c.id as cust_id
+     FROM orders o JOIN customers c ON o.customer_id = c.id WHERE o.display_id = ?`
   ).bind(displayId).first();
 
   if (!orderResult) return null;
 
   const itemsResult = await db.prepare('SELECT link, sort_order FROM order_items WHERE order_id = ? ORDER BY sort_order').bind((orderResult as Record<string, unknown>).id as number).all();
 
-  const transitionsResult = await db.prepare('SELECT from_status, to_status, changed_by, created_at FROM order_status_transitions WHERE order_id = ? ORDER BY created_at').bind((orderResult as Record<string, unknown>).id as number).all();
+  const transitionsResult = await db.prepare('SELECT from_status, to_status, changed_by, created_at FROM status_transitions WHERE order_id = ? ORDER BY created_at').bind((orderResult as Record<string, unknown>).id as number).all();
 
   return {
     display_id: displayId,
     customer: {
-      id: (orderResult as Record<string, unknown>).customer_id as number,
+      id: (orderResult as Record<string, unknown>).cust_id as number,
       name: (orderResult as Record<string, unknown>).customer_name as string,
       username: (orderResult as Record<string, unknown>).customer_username as string | null,
       telegram_id: (orderResult as Record<string, unknown>).telegram_id as number,
@@ -248,11 +307,11 @@ async function getCustomerById(db: D1Database, customerId: number): Promise<Reco
 }
 
 async function getOrdersByCustomer(db: D1Database, customerId: number): Promise<OrderSummary[]> {
-  const result = await db.prepare('SELECT display_id, customer_name, customer_username, status, item_count, created_at FROM orders WHERE customer_id = ? ORDER BY created_at DESC').bind(customerId).all();
+  const result = await db.prepare('SELECT display_id, first_name as customer_name, username as customer_username, status, (SELECT COUNT(*) FROM order_items WHERE order_id = orders.id) as item_count, created_at FROM orders WHERE customer_id = ? ORDER BY created_at DESC').bind(customerId).all();
   return result.results as OrderSummary[];
 }
 
 async function getActivityLogs(env: Env, options: { action?: string; actor?: string; from?: string; to?: string; limit: number; offset: number }): Promise<{ logs: unknown[]; total: number }> {
-  const { readActivityLogs } = await import('../../kv/schema');
+  const { readActivityLogs } = await import('./lib/kv-schema');
   return readActivityLogs(env, options);
 }
