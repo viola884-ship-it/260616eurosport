@@ -19,7 +19,7 @@ description: "Task list for Orders Dashboard feature implementation"
 
 - Frontend: `dashboard/` at repository root
 - Backend: `workers/dashboard-api/` at repository root
-- KV: `kv/` at repository root
+- KV schema: `workers/dashboard-api/lib/kv-schema.ts` (referenced from plan structure)
 - Paths shown follow the project structure from plan.md
 
 ## Phase 1: Setup (Shared Infrastructure)
@@ -29,7 +29,7 @@ description: "Task list for Orders Dashboard feature implementation"
 - [X] T001 [P] Create dashboard/ directory structure (index.html, styles.css, app.js, api.js)
 - [X] T002 [P] Create workers/dashboard-api/ directory structure (index.ts, handlers/, middleware/, lib/)
 - [X] T003 [P] Create workers/dashboard-api/wrangler.toml with D1 and KV bindings
-- [X] T004 Create KV schema in kv/schema.ts (ActivityLogEntry interface, log helper functions)
+- [X] T004 Create KV schema in workers/dashboard-api/lib/kv-schema.ts (ActivityLogEntry interface, log helper functions)
 - [X] T005 [P] Add shared TypeScript types in workers/dashboard-api/types.ts (OrderSummary, OrderDetail, ActivityLogEntry, Env)
 - [X] T006 Create D1 database helper in workers/dashboard-api/lib/db.ts (reuse queries from existing bot)
 
@@ -79,8 +79,8 @@ description: "Task list for Orders Dashboard feature implementation"
 
 - [X] T021 [US2] Create status filter dropdown in dashboard/index.html
 - [X] T022 [US2] Create customer search input in dashboard/index.html
-- [X] T023 [US2] Implement status filter in dashboard/app.js (send filter to API, re-render table)
-- [X] T024 [US2] Implement customer search in dashboard/app.js (send query to API, debounce input)
+- [X] T023 [US2] Implement status filter in dashboard/app.js (filter sent to API, re-render table)
+- [X] T024 [US2] Implement customer search in dashboard/app.js (client-side filter, debounce 300ms, minimum 2 characters to trigger)
 
 ---
 
@@ -118,7 +118,8 @@ description: "Task list for Orders Dashboard feature implementation"
 - [X] T032 Add responsive CSS for mobile devices in dashboard/styles.css
 - [X] T033 Add session timeout handling in dashboard/app.js
 - [X] T034 [P] Add API rate limiting middleware in workers/dashboard-api/middleware/rate-limit.ts
-- [ ] T035 Add vitest unit tests for API handlers in workers/dashboard-api/handlers/handlers.test.ts
+- [X] T035 Add vitest unit tests for API handlers in workers/dashboard-api/handlers/handlers.test.ts (test orders-list, order-detail, order-status, order-message, activity-logs, customer-detail handlers) — all 14 tests passing
+- [X] T036 [P] Add login lockout in workers/dashboard-api/middleware/auth.ts (checkLoginLockout, recordFailedLogin, clearLoginLockout; 5 attempts before 15-minute lockout) + integrate into login handler in workers/dashboard-api/index.ts
 
 ---
 

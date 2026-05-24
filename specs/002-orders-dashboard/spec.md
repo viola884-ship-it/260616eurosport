@@ -57,7 +57,7 @@ A manager can click an order in the dashboard table to see full details includin
 
 ### Functional Requirements
 
-- **FR-001**: Dashboard MUST be accessible via a unique URL (e.g., `/dashboard`)
+- **FR-001**: Dashboard MUST be accessible via a URL (Workers Assets serves at root, e.g., `https://example.com/` or `/dashboard/` depending on binding configuration)
 - **FR-002**: Dashboard MUST display all orders in a table with columns: Order ID, Customer, Status, Created At, Items Count
 - **FR-003**: Dashboard table MUST be sortable by clicking column headers (Order ID, Customer, Status, Created At)
 - **FR-004**: Dashboard MUST support filtering by order status
@@ -66,19 +66,22 @@ A manager can click an order in the dashboard table to see full details includin
   - Case-insensitive partial match on name or username
   - Results update as user types (debounced 300ms)
   - Empty search shows all orders (no filter applied)
+  - Note: Search is client-side filtering of loaded orders (not a server API call)
 - **FR-006**: Dashboard MUST show order detail view when clicking an order row
-- **FR-007**: Order detail view MUST show: customer name, all product links, specifications, current status
-- **FR-008**: Dashboard MUST display timestamps in human-readable format (e.g., "2 hours ago", "May 24, 14:30")
+- **FR-007**: Order detail view MUST show: customer name, all product links, specifications, current status, and status history (history of all status transitions with timestamps and actor)
+- **FR-008**: Dashboard MUST display timestamps in human-readable format (relative format like "2 hours ago", absolute format on hover like "May 24, 14:30")
 - **FR-009**: Manager authentication MUST be required to access the dashboard
-  - Session-based authentication using HTTP-only cookies
+  - Primary: X-Session-Token passed via `X-Session-Token` response header and `X-Session-Token` request header
+  - Fallback: HTTP-only cookie with SameSite=Lax for browser clients
+  - Session stored in localStorage for programmatic access
   - Session timeout: 30 minutes of inactivity
-  - Logout mechanism available to manager
+  - Logout mechanism available to manager (POST /dashboard-api/logout)
   - Failed login attempts limited to 5 before 15-minute lockout
 
 ### Key Entities *(include if feature involves data)*
 
 - **Order**: Display ID, customer reference, status, specs (free-text), created timestamp, item count
-- **Customer**: Username, first name, telegram ID
+- **Customer**: Username, first name, telegram_id (Cloudflare Telegram binding)
 - **OrderItem**: Product link, sort order within order
 
 ## Success Criteria *(mandatory)*
@@ -90,6 +93,15 @@ A manager can click an order in the dashboard table to see full details includin
 - **SC-003**: Status filter updates table within 1 second of selection
 - **SC-004**: Dashboard is readable on mobile devices (responsive layout)
 - **SC-005**: Pagination controls are visible and functional when order count exceeds page size
+
+### Performance Verification
+
+SC-001 through SC-003 are **post-deployment performance criteria**. They are verified manually or via Cloudflare Analytics/real user monitoring after deployment, not via unit tests. For automated verification, consider integrating Cloudflare Metrics or a synthetic monitoring service (e.g., Checkly, Grafana Synthetic).
+
+**Manual verification steps** (deploy and then verify):
+1. Open dashboard in browser, measure load time with Network tab → should be <3s
+2. Click column headers, measure sorting response with Network tab → should be <500ms
+3. Select status filter, measure update time → should be <1s
 
 ## Assumptions
 

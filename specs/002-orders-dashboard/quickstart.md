@@ -2,25 +2,20 @@
 
 ## Setup
 
+The dashboard is deployed as a single Cloudflare Worker (dashboard-api) that serves both the REST API and static assets via Workers Assets binding. No separate Cloudflare Pages deployment is needed.
+
 1. **Deploy dashboard API worker**:
    ```bash
    cd workers/dashboard-api
    wrangler deploy
    ```
+   This deploys both the API endpoints and the dashboard UI (static assets are bound via `workers/dashboard-api/index.ts` serving from Workers Assets).
 
-2. **Create KV namespace for logs**:
-   ```bash
-   wrangler kv:namespace create ACTIVITY_LOGS
-   ```
-   Add the binding to `wrangler.toml`.
+2. **Configure bindings in `wrangler.toml`**:
+   - The `wrangler.toml` already includes D1 and KV bindings (`DB` and `ACTIVITY_LOGS`)
+   - Ensure the D1 database is created and migrations are applied
 
-3. **Deploy frontend** (Cloudflare Pages):
-   ```bash
-   cd dashboard
-   wrangler pages deploy
-   ```
-
-4. **Set secrets**:
+3. **Set secrets**:
    ```bash
    wrangler secret put DASHBOARD_PASSWORD
    wrangler secret put API_SECRET_KEY

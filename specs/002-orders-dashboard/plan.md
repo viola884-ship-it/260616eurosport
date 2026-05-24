@@ -12,7 +12,7 @@ A web-based dashboard for managers to view and manage all orders, deployed as a 
 **Architecture**: Single Cloudflare Worker (dashboard-api) serving both REST API and static assets via Workers Assets binding
 **Frontend**: Vanilla HTML/CSS/JS served as static assets from the Worker
 **Backend**: Cloudflare Workers with D1 database and KV for activity logging
-**Authentication**: Password-based login returning X-Session-Token header (fallback to HttpOnly cookie with SameSite=Lax)
+**Authentication**: Password-based login returning X-Session-Token response header + HttpOnly cookie with SameSite=Lax as fallback (browser clients prefer cookie, programmatic clients use header). Spec and implementation are aligned.
 **Performance Goals**: Dashboard loads within 3s, API responses <500ms
 **Constraints**: KV eventual consistency; Workers Assets serve static files at root path
 **Scale/Scope**: Single manager, up to 10k orders, up to 1k customers
@@ -75,7 +75,8 @@ workers/
 │   │   ├── order-status.ts
 │   │   ├── order-message.ts
 │   │   ├── activity-logs.ts
-│   │   └── customer-detail.ts
+│   │   ├── customer-detail.ts
+│   │   └── handlers.test.ts  # vitest unit tests
 │   ├── middleware/     # Auth, logging, rate limiting
 │   │   ├── auth.ts
 │   │   ├── logging.ts

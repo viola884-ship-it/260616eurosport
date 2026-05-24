@@ -176,21 +176,24 @@ Returns customer details with their orders.
 
 ---
 
-## Dashboard Pages (HTML/JS)
+## Dashboard UI
 
-### /dashboard/
+The dashboard is served as static assets via Workers Assets binding. The exact URL path depends on the Cloudflare Pages/Workers configuration:
 
-Main dashboard page. Protected by password auth (session cookie).
+- **If bound at root** (`/`): Dashboard is at `https://telegram-order-bot.krown-benelux-b-v.workers.dev/`
+- **If bound at `/dashboard`**: Dashboard is at `https://telegram-order-bot.krown-benelux-b-v.workers.dev/dashboard/`
+
+The implementation serves assets at `/dashboard/` (see `workers/dashboard-api/index.ts`).
 
 **Features**:
 - Orders table with sorting
 - Status filter dropdown
-- Customer search
-- Click row to view details
+- Customer search (client-side, debounced)
+- Click row to view details in modal
 
-### /dashboard/order/:id
+### Order Detail View
 
-Order detail view (modal or page).
+Order details are displayed in a modal overlay (not a separate page). The frontend fetches order details via `GET /orders/:display_id` and renders them in the modal.
 
 ---
 

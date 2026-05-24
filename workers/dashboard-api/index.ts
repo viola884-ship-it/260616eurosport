@@ -4,7 +4,7 @@
  */
 
 import type { Env, OrderSummary, OrderDetail } from './types';
-import { authMiddleware, createSessionCookie, clearSessionCookie, validateCredentials } from './middleware/auth';
+import { authMiddleware, createSessionCookie, clearSessionCookie, validateCredentials, checkLoginLockout, recordFailedLogin, clearLoginLockout, getLoginIdentifier } from './middleware/auth';
 import { loggingMiddleware } from './middleware/logging';
 import { rateLimit, getClientIdentifier, rateLimitHeaders } from './middleware/rate-limit';
 
@@ -37,12 +37,26 @@ export default {
     }
 
     if (url.pathname === '/dashboard-api/login' && request.method === 'POST') {
+      const clientIp = getLoginIdentifier(request);
+      const lockoutStatus = await checkLoginLockout(env, clientIp);
+
+      if (lockoutStatus.locked) {
+        const retryAfter = Math.ceil((lockoutStatus.lockedUntil! - Date.now()) / 1000);
+        return jsonResponse({ error: 'Account locked due to too many failed attempts', retryAfter }, 429, CORS_HEADERS);
+      }
+
       const body = await request.json().catch(() => ({}));
       const { password } = body as { password?: string };
 
       if (!password || !(await validateCredentials(env, password))) {
-        return jsonResponse({ error: 'Invalid credentials' }, 401, CORS_HEADERS);
+        const failStatus = await recordFailedLogin(env, clientIp);
+        if (failStatus.locked) {
+          return jsonResponse({ error: 'Invalid credentials. Account locked due to too many failed attempts', retryAfter: 900 }, 429, CORS_HEADERS);
+        }
+        return jsonResponse({ error: 'Invalid credentials', remainingAttempts: failStatus.remainingAttempts }, 401, CORS_HEADERS);
       }
+
+      await clearLoginLockout(env, clientIp);
 
       const sessionData = { authenticated: true, timestamp: Date.now() };
       const sessionCookie = createSessionCookie(sessionData);

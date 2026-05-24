@@ -22,6 +22,6 @@ async function getActivityLogs(
   env: Env,
   options: { action?: string; actor?: string; from?: string; to?: string; limit: number; offset: number }
 ): Promise<{ logs: unknown[]; total: number }> {
-  const { readActivityLogs } = await import('../../kv/schema');
+  const { readActivityLogs } = await import('../lib/kv-schema');
   return readActivityLogs(env, options);
 }
