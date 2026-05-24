@@ -29,12 +29,12 @@ export function FilterControls({ status, search, onStatusChange, onSearchChange 
         className="w-64"
       />
 
-      <Select value={status} onValueChange={onStatusChange}>
+      <Select value={status || 'all'} onValueChange={(v) => onStatusChange(v === 'all' ? '' : v)}>
         <SelectTrigger className="w-40">
           <SelectValue placeholder="All statuses" />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="">All statuses</SelectItem>
+          <SelectItem value="all">All statuses</SelectItem>
           <SelectItem value="new">New</SelectItem>
           <SelectItem value="confirmed">Confirmed</SelectItem>
           <SelectItem value="processing">Processing</SelectItem>
