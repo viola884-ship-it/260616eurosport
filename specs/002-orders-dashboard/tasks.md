@@ -26,12 +26,12 @@ description: "Task list for Orders Dashboard feature implementation"
 
 **Purpose**: Project initialization, configuration, and shared infrastructure
 
-- [ ] T001 [P] Create dashboard/ directory structure (index.html, styles.css, app.js, api.js)
-- [ ] T002 [P] Create workers/dashboard-api/ directory structure (index.ts, handlers/, middleware/, lib/)
-- [ ] T003 [P] Create workers/dashboard-api/wrangler.toml with D1 and KV bindings
-- [ ] T004 Create KV schema in kv/schema.ts (ActivityLogEntry interface, log helper functions)
-- [ ] T005 [P] Add shared TypeScript types in workers/dashboard-api/types.ts (OrderSummary, OrderDetail, ActivityLogEntry, Env)
-- [ ] T006 Create D1 database helper in workers/dashboard-api/lib/db.ts (reuse queries from existing bot)
+- [X] T001 [P] Create dashboard/ directory structure (index.html, styles.css, app.js, api.js)
+- [X] T002 [P] Create workers/dashboard-api/ directory structure (index.ts, handlers/, middleware/, lib/)
+- [X] T003 [P] Create workers/dashboard-api/wrangler.toml with D1 and KV bindings
+- [X] T004 Create KV schema in kv/schema.ts (ActivityLogEntry interface, log helper functions)
+- [X] T005 [P] Add shared TypeScript types in workers/dashboard-api/types.ts (OrderSummary, OrderDetail, ActivityLogEntry, Env)
+- [X] T006 Create D1 database helper in workers/dashboard-api/lib/db.ts (reuse queries from existing bot)
 
 ---
 
@@ -41,14 +41,14 @@ description: "Task list for Orders Dashboard feature implementation"
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T007 [P] Create authentication middleware in workers/dashboard-api/middleware/auth.ts (password validation, session cookie)
-- [ ] T008 [P] Create logging middleware in workers/dashboard-api/middleware/logging.ts (KV log writes on each request)
-- [ ] T009 Create dashboard API entry point in workers/dashboard-api/index.ts (router, CORS, error handling)
-- [ ] T010 [P] Create API base handler in workers/dashboard-api/handlers/base.ts (auth guard, logging, error wrapper)
-- [ ] T011 [P] Create orders list endpoint handler in workers/dashboard-api/handlers/orders-list.ts (GET /orders with pagination)
-- [ ] T012 [P] Create order detail endpoint handler in workers/dashboard-api/handlers/order-detail.ts (GET /orders/:id)
-- [ ] T013 [P] Create status update endpoint handler in workers/dashboard-api/handlers/order-status.ts (PATCH /orders/:id/status)
-- [ ] T014 [P] Create activity logs endpoint handler in workers/dashboard-api/handlers/activity-logs.ts (GET /activity-logs)
+- [X] T007 [P] Create authentication middleware in workers/dashboard-api/middleware/auth.ts (password validation, session cookie)
+- [X] T008 [P] Create logging middleware in workers/dashboard-api/middleware/logging.ts (KV log writes on each request)
+- [X] T009 Create dashboard API entry point in workers/dashboard-api/index.ts (router, CORS, error handling)
+- [X] T010 [P] Create API base handler in workers/dashboard-api/handlers/base.ts (auth guard, logging, error wrapper)
+- [X] T011 [P] Create orders list endpoint handler in workers/dashboard-api/handlers/orders-list.ts (GET /orders with pagination)
+- [X] T012 [P] Create order detail endpoint handler in workers/dashboard-api/handlers/order-detail.ts (GET /orders/:id)
+- [X] T013 [P] Create status update endpoint handler in workers/dashboard-api/handlers/order-status.ts (PATCH /orders/:id/status)
+- [X] T014 [P] Create activity logs endpoint handler in workers/dashboard-api/handlers/activity-logs.ts (GET /activity-logs)
 
 **Checkpoint**: Foundation ready - dashboard API endpoints functional, auth and logging in place
 
@@ -60,12 +60,12 @@ description: "Task list for Orders Dashboard feature implementation"
 
 **Independent Test**: Open dashboard URL, verify table displays with Order ID, Customer, Status, Created At, Items Count columns; click column headers to verify sorting works
 
-- [ ] T015 [P] [US1] Create API client module in dashboard/api.js (fetch wrappers for all API endpoints)
-- [ ] T016 [P] [US1] Create main dashboard page in dashboard/index.html (HTML structure, CSS classes)
-- [ ] T017 [US1] Create dashboard styles in dashboard/styles.css (table styles, responsive layout, status badges)
-- [ ] T018 [US1] Create dashboard app logic in dashboard/app.js (fetch and display orders, render table, handle sorting)
-- [ ] T019 [US1] Implement table sorting in dashboard/app.js (client-side sort by Order ID, Customer, Status, Created At)
-- [ ] T020 [US1] Implement human-readable timestamps in dashboard/app.js (relative time + absolute on hover)
+- [X] T015 [P] [US1] Create API client module in dashboard/api.js (fetch wrappers for all API endpoints)
+- [X] T016 [P] [US1] Create main dashboard page in dashboard/index.html (HTML structure, CSS classes)
+- [X] T017 [US1] Create dashboard styles in dashboard/styles.css (table styles, responsive layout, status badges)
+- [X] T018 [US1] Create dashboard app logic in dashboard/app.js (fetch and display orders, render table, handle sorting)
+- [X] T019 [US1] Implement table sorting in dashboard/app.js (client-side sort by Order ID, Customer, Status, Created At)
+- [X] T020 [US1] Implement human-readable timestamps in dashboard/app.js (relative time + absolute on hover)
 
 **Checkpoint**: At this point, manager can open dashboard and view all orders in sortable table
 
@@ -77,12 +77,10 @@ description: "Task list for Orders Dashboard feature implementation"
 
 **Independent Test**: Apply status filter, verify only matching orders appear; enter customer name, verify only matching orders appear
 
-- [ ] T021 [US2] Create status filter dropdown in dashboard/index.html
-- [ ] T022 [US2] Create customer search input in dashboard/index.html
-- [ ] T023 [US2] Implement status filter in dashboard/app.js (send filter to API, re-render table)
-- [ ] T024 [US2] Implement customer search in dashboard/app.js (send query to API, debounce input)
-
-**Checkpoint**: Manager can filter and search orders efficiently
+- [X] T021 [US2] Create status filter dropdown in dashboard/index.html
+- [X] T022 [US2] Create customer search input in dashboard/index.html
+- [X] T023 [US2] Implement status filter in dashboard/app.js (send filter to API, re-render table)
+- [X] T024 [US2] Implement customer search in dashboard/app.js (send query to API, debounce input)
 
 ---
 
@@ -92,10 +90,10 @@ description: "Task list for Orders Dashboard feature implementation"
 
 **Independent Test**: Click order row, verify modal shows customer info, all product links, specifications, status history
 
-- [ ] T025 [US3] Create order detail modal/panel in dashboard/index.html
-- [ ] T026 [US3] Implement order detail view in dashboard/app.js (fetch and display order detail on row click)
-- [ ] T027 [US3] Add click handlers to open product links in new tab in dashboard/app.js
-- [ ] T028 [US3] Add status history display in dashboard/app.js (show transitions with timestamps)
+- [X] T025 [US3] Create order detail modal/panel in dashboard/index.html
+- [X] T026 [US3] Implement order detail view in dashboard/app.js (fetch and display order detail on row click)
+- [X] T027 [US3] Add click handlers to open product links in new tab in dashboard/app.js
+- [X] T028 [US3] Add status history display in dashboard/app.js (show transitions with timestamps)
 
 **Checkpoint**: Manager can view complete order details without using bot commands
 
@@ -107,10 +105,8 @@ description: "Task list for Orders Dashboard feature implementation"
 
 **Independent Test**: POST message to customer, verify Telegram message sent; GET customer details, verify orders returned
 
-- [ ] T029 [P] Create send message endpoint in workers/dashboard-api/handlers/order-message.ts (POST /orders/:id/message)
-- [ ] T030 [P] Create customer detail endpoint in workers/dashboard-api/handlers/customer-detail.ts (GET /customers/:id)
-
-**Checkpoint**: API supports full customer management and messaging
+- [X] T029 [P] Create send message endpoint in workers/dashboard-api/handlers/order-message.ts (POST /orders/:id/message)
+- [X] T030 [P] Create customer detail endpoint in workers/dashboard-api/handlers/customer-detail.ts (GET /customers/:id)
 
 ---
 
@@ -118,10 +114,10 @@ description: "Task list for Orders Dashboard feature implementation"
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T031 [P] Add error handling and loading states to dashboard/app.js
-- [ ] T032 Add responsive CSS for mobile devices in dashboard/styles.css
-- [ ] T033 Add session timeout handling in dashboard/app.js
-- [ ] T034 [P] Add API rate limiting middleware in workers/dashboard-api/middleware/rate-limit.ts
+- [X] T031 [P] Add error handling and loading states to dashboard/app.js
+- [X] T032 Add responsive CSS for mobile devices in dashboard/styles.css
+- [X] T033 Add session timeout handling in dashboard/app.js
+- [X] T034 [P] Add API rate limiting middleware in workers/dashboard-api/middleware/rate-limit.ts
 - [ ] T035 Add vitest unit tests for API handlers in workers/dashboard-api/handlers/handlers.test.ts
 
 ---
