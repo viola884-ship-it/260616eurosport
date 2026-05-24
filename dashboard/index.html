@@ -1,83 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Orders Dashboard</title>
-  <link rel="icon" type="image/svg+xml" href="favicon.svg">
-  <link rel="stylesheet" href="styles.css">
-</head>
-<body>
-  <div id="app">
-    <div id="login-screen" class="login-screen">
-      <div class="login-card">
-        <h1>Orders Dashboard</h1>
-        <form id="login-form">
-          <input type="password" id="password-input" placeholder="Enter password" required>
-          <button type="submit" class="btn btn-primary">Login</button>
-          <p id="login-error" class="error" hidden>Invalid password</p>
-        </form>
-      </div>
-    </div>
-
-    <div id="dashboard-screen" hidden>
-      <header class="header">
-        <h1>Orders Dashboard</h1>
-        <div class="header-actions">
-          <button id="logout-btn" class="btn btn-secondary">Logout</button>
-        </div>
-      </header>
-
-      <main class="main-content">
-        <section class="filters">
-          <select id="status-filter" class="filter-select">
-            <option value="">All Statuses</option>
-            <option value="new">New</option>
-            <option value="confirmed">Confirmed</option>
-            <option value="processing">Processing</option>
-            <option value="shipped">Shipped</option>
-            <option value="completed">Completed</option>
-            <option value="cancelled">Cancelled</option>
-          </select>
-
-          <input type="text" id="customer-search" class="search-input" placeholder="Search by customer name or username...">
-        </section>
-
-        <section class="orders-table-container">
-          <table class="orders-table" id="orders-table">
-            <thead>
-              <tr>
-                <th data-sort="display_id">Order ID</th>
-                <th data-sort="customer_name">Customer</th>
-                <th data-sort="status">Status</th>
-                <th data-sort="created_at">Created At</th>
-                <th data-sort="item_count">Items</th>
-              </tr>
-            </thead>
-            <tbody id="orders-tbody">
-              <tr class="loading-row">
-                <td colspan="5">Loading orders...</td>
-              </tr>
-            </tbody>
-          </table>
-
-          <div class="pagination" id="pagination">
-            <button id="prev-page" class="btn btn-secondary" disabled>Previous</button>
-            <span id="page-info">Page 1</span>
-            <button id="next-page" class="btn btn-secondary" disabled>Next</button>
-          </div>
-        </section>
-      </main>
-
-      <div id="order-detail-modal" class="modal" hidden>
-        <div class="modal-content">
-          <button class="modal-close" id="modal-close">&times;</button>
-          <div id="order-detail-content"></div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <script src="app.js"></script>
-</body>
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Orders Dashboard</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
 </html>
