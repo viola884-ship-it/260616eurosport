@@ -168,8 +168,9 @@ export default {
         if (chatId !== MANAGER_ID) {
           const prefix = isDuplicate ? '\u{26A0}\uFE0F ' : '\uD83C\uDD95 ';
           const uname = msg.from.username ? `@${msg.from.username}` : msg.from.first_name ?? 'Unknown';
+          const linkList = links.map((l, i) => `${i + 1}. ${l}`).join('\n');
           await send(token, MANAGER_ID,
-            `${prefix}New Order #${order.display_id}\nFrom: ${uname}\nItems: ${links.length} link(s)\nSpecs: ${specs ?? '(none)'}\nTime: ${order.created_at}\n\nManage: /customer ${order.display_id}`,
+            `${prefix}New Order #${order.display_id}\nFrom: ${uname}\nItems:\n${linkList}\nSpecs: ${specs ?? '(none)'}\nTime: ${order.created_at}\n\nManage: /customer ${order.display_id}`,
           );
         }
         return new Response('OK', { status: 200 });
