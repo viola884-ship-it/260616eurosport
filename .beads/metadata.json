@@ -1,0 +1,7 @@
+{
+  "database": "dolt",
+  "backend": "dolt",
+  "dolt_mode": "embedded",
+  "dolt_database": "digital_euro",
+  "project_id": "ab12d7bf-fea4-41a9-9bf7-15e917c67989"
+}
