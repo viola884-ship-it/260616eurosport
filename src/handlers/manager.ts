@@ -105,7 +105,7 @@ export function registerManagerHandlers(bot: Bot<BotContext>, env: Env) {
     }
   });
 
-  bot.command('customer', async (ctx) => {
+  bot.command('order', async (ctx) => {
     if (!isManager(ctx)) {
       await ctx.reply('This command is only available in the manager chat.');
       return;
@@ -113,7 +113,7 @@ export function registerManagerHandlers(bot: Bot<BotContext>, env: Env) {
 
     const displayId = ctx.match?.trim();
     if (!displayId) {
-      await ctx.reply('Usage: /customer <order-id>');
+      await ctx.reply('Usage: /order <order-id>');
       return;
     }
 
@@ -132,6 +132,40 @@ export function registerManagerHandlers(bot: Bot<BotContext>, env: Env) {
 
     await ctx.reply(
       `Order #${displayId} by ${username}:\nItems: ${itemsText}\nSpecs: ${order.specs ?? '(none)'}\nStatus: ${order.status}`,
+    );
+  });
+
+  bot.command('customer', async (ctx) => {
+    if (!isManager(ctx)) {
+      await ctx.reply('This command is only available in the manager chat.');
+      return;
+    }
+
+    const identifier = ctx.match?.trim();
+    if (!identifier) {
+      await ctx.reply('Usage: /customer <customer-id>');
+      return;
+    }
+
+    const customerId = Number(identifier);
+    const customer = !isNaN(customerId)
+      ? await queries.getCustomerById(customerId)
+      : await queries.getCustomerByTelegramId(Number(identifier));
+
+    if (!customer) {
+      await ctx.reply(`Customer #${identifier} not found.`);
+      return;
+    }
+
+    const orders = await queries.getOrdersByCustomer(customer.id);
+    if (orders.length === 0) {
+      await ctx.reply(`Customer @${customer.username ?? customer.first_name ?? customer.id} has no orders.`);
+      return;
+    }
+
+    const lines = orders.map(o => ` #${o.display_id} — ${o.status}`);
+    await ctx.reply(
+      `Orders for @${customer.username ?? customer.first_name ?? customer.id}:\n${lines.join('\n')}`,
     );
   });
 }
