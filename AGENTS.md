@@ -82,3 +82,10 @@ bd close <id>         # Complete work
 - NEVER say "ready to push when you are" - YOU must push
 - If push fails, resolve and retry until it succeeds
 <!-- END BEADS INTEGRATION -->
+
+## Active Technologies
+- TypeScript (existing Cloudflare Workers project) + shadcn/ui, Tailwind CSS, Radix UI primitives (002-orders-dashboard)
+- N/A (UI migration, no data layer changes) (002-orders-dashboard)
+
+## Recent Changes
+- 002-orders-dashboard: Added TypeScript (existing Cloudflare Workers project) + shadcn/ui, Tailwind CSS, Radix UI primitives
