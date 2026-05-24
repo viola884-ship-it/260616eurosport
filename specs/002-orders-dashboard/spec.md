@@ -18,7 +18,7 @@ A manager can view a web dashboard that displays all orders from all customers i
 **Acceptance Scenarios**:
 
 1. **Given** a manager opens the dashboard URL, **When** the page loads, **Then** a table displays all orders showing at minimum: order ID, customer name/username, status, timestamp, item count.
-2. **Given** the dashboard is loaded, **When** there are 100+ orders, **Then** pagination or infinite scroll handles the volume.
+2. **Given** the dashboard is loaded, **When** there are 100+ orders, **Then** pagination handles the volume with 50 orders per page; manager can navigate forward/backward
 3. **Given** the dashboard is loaded, **When** manager clicks a column header, **Then** the table sorts by that column.
 
 ---
@@ -62,10 +62,18 @@ A manager can click an order in the dashboard table to see full details includin
 - **FR-003**: Dashboard table MUST be sortable by clicking column headers (Order ID, Customer, Status, Created At)
 - **FR-004**: Dashboard MUST support filtering by order status
 - **FR-005**: Dashboard MUST support searching by customer name or username
+  - Minimum 2 characters required to trigger search
+  - Case-insensitive partial match on name or username
+  - Results update as user types (debounced 300ms)
+  - Empty search shows all orders (no filter applied)
 - **FR-006**: Dashboard MUST show order detail view when clicking an order row
 - **FR-007**: Order detail view MUST show: customer name, all product links, specifications, current status
 - **FR-008**: Dashboard MUST display timestamps in human-readable format (e.g., "2 hours ago", "May 24, 14:30")
-- **FR-009**: Manager authentication MUST be required to access the dashboard (password or existing session)
+- **FR-009**: Manager authentication MUST be required to access the dashboard
+  - Session-based authentication using HTTP-only cookies
+  - Session timeout: 30 minutes of inactivity
+  - Logout mechanism available to manager
+  - Failed login attempts limited to 5 before 15-minute lockout
 
 ### Key Entities *(include if feature involves data)*
 
@@ -81,6 +89,7 @@ A manager can click an order in the dashboard table to see full details includin
 - **SC-002**: Table sorting responds within 500ms of click
 - **SC-003**: Status filter updates table within 1 second of selection
 - **SC-004**: Dashboard is readable on mobile devices (responsive layout)
+- **SC-005**: Pagination controls are visible and functional when order count exceeds page size
 
 ## Assumptions
 

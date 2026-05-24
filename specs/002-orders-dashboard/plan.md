@@ -9,14 +9,9 @@ A web-based dashboard for managers to view and manage all orders, with Telegram 
 
 ## Technical Context
 
-**Language/Version**: TypeScript 5.x
-**Primary Dependencies**: Cloudflare Workers (backend), Cloudflare Pages (frontend), D1 (existing database), Workers KV (logging)
-**Storage**: Cloudflare D1 (existing orders database), Workers KV (activity logs)
-**Testing**: vitest (unit tests)
-**Target Platform**: Cloudflare Workers + Pages
-**Project Type**: web-service (dashboard + API)
+**Architecture**: Web dashboard with REST API backend
 **Performance Goals**: Dashboard loads within 3s, API responses <500ms
-**Constraints**: Cloudflare Workers free-tier limits (100k requests/day, 10ms CPU/request); KV eventual consistency
+**Constraints**: External service limits apply (see Phase 0 Decisions); KV eventual consistency
 **Scale/Scope**: Single manager, up to 10k orders, up to 1k customers
 
 ## Constitution Check
