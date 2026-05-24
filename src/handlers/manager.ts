@@ -4,10 +4,23 @@ import { OrderQueries } from '../db/queries';
 
 export function registerManagerHandlers(bot: Bot<BotContext>, env: Env) {
   const queries = new OrderQueries(env.DB);
+  const managerChatId = Number(env.MANAGER_CHAT_ID);
+
+  // Guard: only process commands in the manager chat
+  const isManager = (ctx: BotContext): boolean => {
+    if (!managerChatId) return false;
+    return ctx.chat?.id === managerChatId;
+  };
+
+  bot.command('ping', async (ctx) => {
+    await ctx.reply(`pong (chat: ${ctx.chat?.id}, manager: ${managerChatId})`);
+  });
 
   bot.command('update', async (ctx) => {
-    const chatId = ctx.chat!.id;
-    if (chatId !== Number(env.MANAGER_CHAT_ID)) return;
+    if (!isManager(ctx)) {
+      await ctx.reply('This command is only available in the manager chat.');
+      return;
+    }
 
     const args = ctx.match?.trim().split(/\s+/);
     if (!args || args.length < 2) {
@@ -47,7 +60,6 @@ export function registerManagerHandlers(bot: Bot<BotContext>, env: Env) {
     const updated = await queries.updateOrderStatus(order.id, newStatus as any, 'manager');
     await ctx.reply(`Order #${displayId} updated to ${updated!.status}. Customer notified.`);
 
-    // Notify customer
     const customer = await queries.getCustomerById(order.customer_id);
     if (customer) {
       const statusIcon: Record<string, string> = {
@@ -67,8 +79,10 @@ export function registerManagerHandlers(bot: Bot<BotContext>, env: Env) {
   });
 
   bot.command('list', async (ctx) => {
-    const chatId = ctx.chat!.id;
-    if (chatId !== Number(env.MANAGER_CHAT_ID)) return;
+    if (!isManager(ctx)) {
+      await ctx.reply('This command is only available in the manager chat.');
+      return;
+    }
 
     const statusFilter = ctx.match?.trim() || undefined;
     const orders = statusFilter
@@ -92,8 +106,10 @@ export function registerManagerHandlers(bot: Bot<BotContext>, env: Env) {
   });
 
   bot.command('customer', async (ctx) => {
-    const chatId = ctx.chat!.id;
-    if (chatId !== Number(env.MANAGER_CHAT_ID)) return;
+    if (!isManager(ctx)) {
+      await ctx.reply('This command is only available in the manager chat.');
+      return;
+    }
 
     const displayId = ctx.match?.trim();
     if (!displayId) {
