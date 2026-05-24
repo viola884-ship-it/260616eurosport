@@ -37,8 +37,8 @@ description: "Task list for Telegram Order Bot feature implementation"
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [x] T005 [P] Create shared TypeScript types in src/types.ts (Customer, Order, OrderItem, StatusTransition, BotContext)
-- [x] T006 [P] Create bot setup and webhook handler in src/bot.ts (grammY bot with Cloudflare Workers adapter)
+- [x] T005 [P] Create shared TypeScript types in src/types.ts (Customer, Order, OrderItem, StatusTransition, Env)
+- [x] T006 [P] Create all bot logic in src/index.ts (webhook handler, raw Telegram API integration)
 - [x] T007 Create Worker entry point in src/index.ts (webhook handler, error handling, startup)
 - [x] T008 Create database query functions in src/db/queries.ts (customer CRUD, order CRUD, status transitions)
 
@@ -52,8 +52,8 @@ description: "Task list for Telegram Order Bot feature implementation"
 
 **Independent Test**: Send a product link with specs to the bot and verify the bot confirms with an order summary
 
-- [x] T009 [P] [US1] Create customer message handler in src/handlers/customer.ts (link extraction, spec parsing middleware)
-- [x] T010 [US1] Implement order creation flow in src/handlers/customer.ts (lookup-or-create customer, insert order + line items, assign display_id)
+- [x] T009 [P] [US1] Create customer message handler in src/index.ts (link extraction, spec parsing, order creation, confirmation)
+- [x] T010 [US1] Implement order creation flow in src/index.ts (lookup-or-create customer, insert order + line items, assign display_id)
 - [x] T011 [US1] Implement duplicate detection and flagging in order creation (check same customer + same links in recent window)
 - [x] T012 [US1] Implement order confirmation reply to customer (order summary with display_id)
 
@@ -67,7 +67,7 @@ description: "Task list for Telegram Order Bot feature implementation"
 
 **Independent Test**: Place an order as a customer and verify a notification appears in the manager's chat
 
-- [x] T013 [P] [US2] Create manager handler in src/handlers/manager.ts (/list, /customer commands)
+- [x] T013 [P] [US2] Create manager command handlers in src/index.ts (/ping, /list, /customer, /update commands)
 - [x] T014 [US2] Send new order notification to manager chat from order creation flow (format per contracts/bot-api.md)
 - [x] T015 [US2] Implement /list command for manager in src/handlers/manager.ts (list all orders, optional status filter)
 - [x] T016 [US2] Implement /customer command for manager in src/handlers/manager.ts (view order by display_id)
@@ -82,7 +82,7 @@ description: "Task list for Telegram Order Bot feature implementation"
 
 **Independent Test**: Update an order's status via the manager chat and verify the customer receives a notification
 
-- [x] T017 [US3] Implement /status command for manager in src/handlers/manager.ts (parse <order-id> <new-status>, validate transition)
+- [x] T017 [US3] Implement /update command for manager in src/index.ts (parse <order-id> <new-status>, validate transition)
 - [x] T018 [US3] Implement status transition logic with validation in src/db/queries.ts (record transition, enforce lifecycle rules)
 - [x] T019 [US3] Implement customer notification on status change (send message to customer's Telegram chat)
 
@@ -96,7 +96,7 @@ description: "Task list for Telegram Order Bot feature implementation"
 
 **Independent Test**: Ask the bot for order status and verify the correct list of orders with statuses is returned
 
-- [x] T020 [P] [US4] Implement /status command for customers in src/handlers/customer.ts (lookup orders by customer)
+- [x] T020 [P] [US4] Implement /status command for customers in src/index.ts (lookup orders by customer)
 - [x] T021 [US4] Add customer order lookup query in src/db/queries.ts (get orders by customer_id with current status)
 
 **Checkpoint**: All user stories should now be independently functional
@@ -144,7 +144,6 @@ description: "Task list for Telegram Order Bot feature implementation"
 
 - T002 and T003 can run in parallel (different config files)
 - T005 and T006 can run in parallel (unrelated files)
-- T009 is independent of other US1 tasks
 - T013 is the only independent US2 task (other US2 tasks depend on US1 implementation)
 - T020 and T021 can run in parallel (handler + query addition)
 - T022, T023, T025 can run in parallel (independent files)
@@ -154,9 +153,8 @@ description: "Task list for Telegram Order Bot feature implementation"
 ## Parallel Example: User Story 1
 
 ```bash
-# Launch T009 and T010 together (T009 discovers links, T010 creates orders):
-Task: "Create customer message handler in src/handlers/customer.ts"
-Task: "Implement order creation flow in src/handlers/customer.ts"
+# Launch T009 (all customer logic is in index.ts):
+Task: "Create customer message handler in src/index.ts (link extraction, spec parsing, order creation)"
 ```
 
 ---
@@ -186,8 +184,8 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
-   - Developer A: User Stories 1 + 2 (coupled by order notification)
-   - Developer B: User Story 4 (independent handler work)
+   - Developer A: User Stories 1 + 2 (single-file implementation)
+   - Developer B: User Story 4 (same file, independent command branch)
 3. After US1 complete: Developer A can continue with User Story 3
 
 ---
@@ -201,3 +199,4 @@ With multiple developers:
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 - No test tasks are included; tests were not requested in the feature specification
+- All bot logic is in src/index.ts using the raw Telegram REST API

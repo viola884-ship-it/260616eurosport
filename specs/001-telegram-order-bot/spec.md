@@ -50,7 +50,7 @@ The manager receives new order notifications in a dedicated Telegram chat. They 
 
 ### User Story 3 - Manager Manages Order Lifecycle (Priority: P2)
 
-The manager can update an order's status through the Telegram chat using commands (e.g., `/status <order-id> <new-status>`). The customer is notified of status changes.
+The manager can update an order's status through the Telegram chat using commands (e.g., `/update <order-id> <new-status>`). The customer is notified of status changes.
 
 **Why this priority**: Order management adds operational value but can follow after basic placement and notification.
 
@@ -60,7 +60,7 @@ The manager can update an order's status through the Telegram chat using command
 
 1. **Given** an order exists, **When** the manager updates its status to "confirmed", **Then** the customer receives a notification with the new status.
 2. **Given** an order exists, **When** the manager cancels it, **Then** the customer receives a cancellation notification with an optional reason.
-3. **Given** an order is in-progress, **When** the manager marks it as "completed", **Then** the customer receives a completion notification.
+3. **Given** an order is being processed, **When** the manager updates it to "completed", **Then** the customer receives a completion notification.
 
 ---
 
@@ -82,10 +82,10 @@ A customer can query the bot for the current status of their orders.
 ### Edge Cases
 
 - What happens when a customer sends multiple product links in one message? → All links are grouped into a single order, each as a separate line item.
-- What happens when the manager's chat is not configured or unavailable?
+- What happens when the manager's chat is not configured or unavailable? → Bot notifies the customer of order creation and silently skips the manager notification.
 - How does the system handle duplicate order submissions (same link, same specs, same customer within a short time)? → System always accepts the order and flags it as a possible duplicate; the manager decides whether to merge or reject.
 - What happens when a customer sends a broken or invalid product link? → Bot creates the order anyway with the provided text; the manager handles validation manually.
-- How does the bot handle very long messages or links that exceed Telegram's message limits?
+- How does the bot handle very long messages or links that exceed Telegram's message limits? → Bot processes the first 4000 characters of the message; longer input is truncated.
 
 ## Requirements *(mandatory)*
 
@@ -97,7 +97,7 @@ A customer can query the bot for the current status of their orders.
 - **FR-004**: System MUST identify and flag orders that may be duplicates (same customer, same link within a short time window).
 - **FR-005**: System MUST assign a unique identifier to each order upon creation.
 - **FR-006**: System MUST forward new orders to the designated manager chat with all order details.
-- **FR-007**: System MUST allow the manager to update an order's status via text commands (e.g., `/status <order-id> <new-status>`) from a defined set (new, confirmed, processing, shipped, completed, cancelled).
+- **FR-007**: System MUST allow the manager to update an order's status via text commands (e.g., `/update <order-id> <new-status>`) from a defined set (new, confirmed, processing, shipped, completed, cancelled).
 - **FR-008**: System MUST notify the customer when their order status changes.
 - **FR-009**: System MUST allow customers to query the status of their active orders.
 - **FR-010**: System MUST persist all orders and their status history for later retrieval.
@@ -118,7 +118,7 @@ A customer can query the bot for the current status of their orders.
 - **SC-001**: A customer can place an order by sending a product link with specifications in under 2 minutes.
 - **SC-002**: The manager receives a new order notification within 30 seconds of the customer submitting it.
 - **SC-003**: Customers can self-serve order status checks without needing to contact the manager.
-- **SC-004**: The system handles at least 50 concurrent users without message loss or significant delay.
+- **SC-004**: The system handles at least 50 concurrent users with 95% of responses completing in under 3 seconds.
 - **SC-005**: 100% of order status changes are persisted and traceable through the order history.
 
 ## Assumptions

@@ -10,13 +10,13 @@ A Telegram bot for order creation and tracking. Customers send product links wit
 ## Technical Context
 
 **Language/Version**: TypeScript 5.x
-**Primary Dependencies**: grammY (Telegram bot framework), wrangler (Cloudflare CLI)
+**Primary Dependencies**: wrangler (Cloudflare CLI)
 **Storage**: Cloudflare D1 (SQLite-compatible)
 **Testing**: vitest
 **Target Platform**: Cloudflare Workers
 **Project Type**: web-service (serverless bot)
 **Performance Goals**: Sub-second bot response time, manager notification within 30s
-**Constraints**: Cloudflare Workers free-tier limits (100k requests/day, 10ms CPU/request for free plan)
+**Constraints**: Cloudflare Workers free-tier limits (100k requests/day, 10ms CPU/request for free plan); Telegram message limit of 4096 characters
 **Scale/Scope**: Single manager + up to 100 concurrent customers, <10k orders
 
 ## Constitution Check
@@ -49,29 +49,27 @@ specs/001-telegram-order-bot/
 
 ```text
 src/
-├── index.ts             # Worker entry point, webhook handler
-├── bot.ts               # grammY bot setup and middleware
-├── handlers/
-│   ├── customer.ts      # Customer message parsing and order creation
-│   └── manager.ts       # Manager command handling (/status, /list)
+├── index.ts             # Worker entry point: webhook handler, all bot logic (raw Telegram API)
 ├── db/
-│   ├── schema.sql       # D1 schema (orders, customers, status_transitions)
-│   └── queries.ts       # Database query functions
-└── types.ts             # Shared TypeScript types
+│   ├── schema.sql       # D1 schema (customers, orders, order_items, status_transitions)
+│   └── queries.ts       # Database query functions (customer CRUD, order CRUD, transitions)
+├── handlers/
+│   └── helpers.ts       # Link extraction, spec parsing, formatting utilities
+└── types.ts             # Shared TypeScript types (Customer, Order, OrderItem, StatusTransition, Env)
 
 tests/
 ├── handlers/
-│   ├── customer.test.ts
-│   └── manager.test.ts
+│   └── helpers.test.ts
 └── db/
     └── queries.test.ts
 
 wrangler.toml             # Cloudflare Workers + D1 configuration
+wrangler.example.toml     # Template with documented env vars
 package.json
 tsconfig.json
 ```
 
-**Structure Decision**: Single project (serverless worker). No frontend or separate backend — the bot is the entire application. D1 schema and queries co-located under `src/db/`.
+**Structure Decision**: Single-file worker. All Telegram integration uses the raw REST API via `fetch()` — no bot framework dependency.
 
 ## Complexity Tracking
 
