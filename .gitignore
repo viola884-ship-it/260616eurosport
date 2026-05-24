@@ -16,6 +16,7 @@ wrangler.toml
 # Environment files (contain secrets)
 .env
 .env.*
+.dev.vars
 
 # OS files
 .DS_Store
