@@ -24,7 +24,7 @@ description: "Task list for Telegram Order Bot feature implementation"
 
 **Purpose**: Project initialization and basic structure
 
-- [x] T001 Initialize npm project and install dependencies (TypeScript, grammY, vitest, wrangler)
+- [x] T001 Initialize npm project and install dependencies (TypeScript, vitest, wrangler)
 - [x] T002 [P] Create tsconfig.json with strict TypeScript config
 - [x] T003 [P] Create wrangler.toml with D1 binding and environment variable placeholders
 - [x] T004 Create D1 database schema in src/db/schema.sql (customers, orders, order_items, status_transitions tables)
@@ -38,11 +38,20 @@ description: "Task list for Telegram Order Bot feature implementation"
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [x] T005 [P] Create shared TypeScript types in src/types.ts (Customer, Order, OrderItem, StatusTransition, Env)
-- [x] T006 [P] Create all bot logic in src/index.ts (webhook handler, raw Telegram API integration)
-- [x] T007 Create Worker entry point in src/index.ts (webhook handler, error handling, startup)
-- [x] T008 Create database query functions in src/db/queries.ts (customer CRUD, order CRUD, status transitions)
+- [x] T006 [P] Create Worker entry point in src/index.ts (webhook handler, raw Telegram API integration, error handling, startup)
+- [x] T007 Create database query functions in src/db/queries.ts (customer CRUD, order CRUD, status transitions)
+- [x] T008 [P] Create link extraction, spec parsing, and formatting utilities in src/handlers/helpers.ts
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
+
+---
+
+## Phase 7.5: Testing & Quality
+
+**Purpose**: Unit tests validating core logic per constitution Quality Gates
+
+- [ ] T026 [P] Add database query unit tests in tests/db/queries.test.ts (vitest)
+- [ ] T027 [P] Add handler helper unit tests in tests/handlers/helpers.test.ts (vitest)
 
 ---
 
@@ -67,7 +76,7 @@ description: "Task list for Telegram Order Bot feature implementation"
 
 **Independent Test**: Place an order as a customer and verify a notification appears in the manager's chat
 
-- [x] T013 [P] [US2] Create manager command handlers in src/index.ts (/ping, /list, /customer, /update commands)
+- [x] T013 [P] [US2] Create manager command handlers in src/handlers/manager.ts (/ping, /list, /customer, /update commands)
 - [x] T014 [US2] Send new order notification to manager chat from order creation flow (format per contracts/bot-api.md)
 - [x] T015 [US2] Implement /list command for manager in src/handlers/manager.ts (list all orders, optional status filter)
 - [x] T016 [US2] Implement /customer command for manager in src/handlers/manager.ts (view order by display_id)
@@ -198,5 +207,5 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- No test tasks are included; tests were not requested in the feature specification
+- Tests are mandatory per constitution Quality Gates (Phase 7.5)
 - All bot logic is in src/index.ts using the raw Telegram REST API

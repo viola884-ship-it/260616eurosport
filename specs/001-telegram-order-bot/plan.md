@@ -54,7 +54,8 @@ src/
 │   ├── schema.sql       # D1 schema (customers, orders, order_items, status_transitions)
 │   └── queries.ts       # Database query functions (customer CRUD, order CRUD, transitions)
 ├── handlers/
-│   └── helpers.ts       # Link extraction, spec parsing, formatting utilities
+│   ├── helpers.ts       # Link extraction, spec parsing, formatting utilities
+│   └── manager.ts       # Manager command handlers (/ping, /list, /customer, /update)
 └── types.ts             # Shared TypeScript types (Customer, Order, OrderItem, StatusTransition, Env)
 
 tests/
