@@ -56,7 +56,7 @@ export default {
       // The bot doesn't need to be in the manager group for this to work.
       if (text.toLowerCase().startsWith('/ping')) {
         await send(token, chatId,
-          `pong\nchat=${chatId}\nmanager=${MANAGER_ID} (env="${env.MANAGER_CHAT_ID}")`,
+          `pong chat=${chatId} manager=${MANAGER_ID} env=${env.MANAGER_CHAT_ID}`,
         );
         return new Response('OK', { status: 200 });
       }

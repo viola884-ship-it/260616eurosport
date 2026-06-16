@@ -2,7 +2,7 @@
 
 ## REST API
 
-Base URL: `https://telegram-order-bot.krown-benelux-b-v.workers.dev/dashboard-api`
+Base URL: `https://dashboard-api-260616.eurosport-orders.workers.dev/dashboard-api`
 
 **Authentication**: Bearer token (API key passed in `Authorization` header)
 
@@ -180,8 +180,8 @@ Returns customer details with their orders.
 
 The dashboard is served as static assets via Workers Assets binding. The exact URL path depends on the Cloudflare Pages/Workers configuration:
 
-- **If bound at root** (`/`): Dashboard is at `https://telegram-order-bot.krown-benelux-b-v.workers.dev/`
-- **If bound at `/dashboard`**: Dashboard is at `https://telegram-order-bot.krown-benelux-b-v.workers.dev/dashboard/`
+- **If bound at root** (`/`): Dashboard is at `https://dashboard-api-260616.eurosport-orders.workers.dev/`
+- **If bound at `/dashboard`**: Dashboard is at `https://dashboard-api-260616.eurosport-orders.workers.dev/dashboard/`
 
 The implementation serves assets at `/dashboard/` (see `workers/dashboard-api/index.ts`).
 
