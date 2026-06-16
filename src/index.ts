@@ -52,6 +52,15 @@ export default {
       const token = env.BOT_TOKEN;
       const MANAGER_ID = Number(env.MANAGER_CHAT_ID);
 
+      // /ping — works in ANY chat (connectivity check + env diagnostic).
+      // The bot doesn't need to be in the manager group for this to work.
+      if (text.toLowerCase().startsWith('/ping')) {
+        await send(token, chatId,
+          `pong\nchat=${chatId}\nmanager=${MANAGER_ID} (env="${env.MANAGER_CHAT_ID}")`,
+        );
+        return new Response('OK', { status: 200 });
+      }
+
       // ── Manager commands ──
       if (chatId === MANAGER_ID) {
         const parts = text.split(/\s+/);
@@ -59,12 +68,6 @@ export default {
         const args = parts.slice(1);
         if (!cmd) return new Response('OK', { status: 200 });
         const cmdName = cmd.toLowerCase();
-
-        // /ping
-        if (cmdName === '/ping') {
-          await send(token, chatId, `pong chat=${chatId} manager=${MANAGER_ID}`);
-          return new Response('OK', { status: 200 });
-        }
 
         // /list [status]
         if (cmdName === '/list') {
