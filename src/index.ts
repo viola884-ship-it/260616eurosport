@@ -31,7 +31,6 @@ const STATUS_ICON: Record<string, string> = {
   confirmed: '\uD83D\uDCE6', processing: '\uD83D\uDD04',
   shipped: '\uD83D\uDE9A', completed: '\u2705', cancelled: '\u274C',
 };
-const MANAGER_ID = -5222379819;
 
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
@@ -51,6 +50,7 @@ export default {
       const text = msg.text as string;
       const q = new OrderQueries(env.DB);
       const token = env.BOT_TOKEN;
+      const MANAGER_ID = Number(env.MANAGER_CHAT_ID);
 
       // ── Manager commands ──
       if (chatId === MANAGER_ID) {
